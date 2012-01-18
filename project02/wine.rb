@@ -23,3 +23,4 @@ db.query("select * from wine") do |wines|
 end
 
 db.execute( "insert into wine(name,price,purchase_date, drunk_date,rating,comments) values( $0,$1,$2,$3,$4,$5)", create);
+puts "New wine saved into the database."
