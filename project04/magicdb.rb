@@ -7,7 +7,7 @@ class SQLite3::Database
 	# sqlite won't bind create table statements
 	# oh well, back to string interpolation
 	def create_table name, options = {}, &block
-		puts "create table #{TableDefinition.new name,options, &block}"
+		execute "create table #{TableDefinition.new name,options, &block}"
 	end
 
 	def create_join_table *tables
@@ -15,6 +15,12 @@ class SQLite3::Database
 			tables.each do |table|
 				t.foreign_key_to table.to_s.singularize
 			end
+		end
+	end
+
+	def drop_tables *tables
+		tables.each do |table|
+			execute "drop table if exists #{table}"
 		end
 	end
 end

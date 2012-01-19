@@ -3,6 +3,9 @@ require './magicdb.rb'
 
 db = SQLite3::Database.new( "test.db" )
 
+# clear existing tables
+db.drop_tables :countries, :vinyards, :wineries, :grapes, :grapes_wines, :grapes_vinyards, :wines
+
 db.create_table :countries do
 	text :name, unique: true
 end
