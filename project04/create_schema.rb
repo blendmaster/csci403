@@ -4,17 +4,21 @@ require './magicdb.rb'
 db = SQLite3::Database.new( "wine.db" )
 
 # clear existing tables
-db.drop_tables :countries, :vinyards, :wineries, :grapes, :grapes_wines, :grapes_vinyards, :wines
+db.drop_tables :countries,:regions, :vinyards, :wineries, :grapes, :grapes_wines, :grapes_vinyards, :wines
 
 db.create_table :countries do
 	text :name, unique: true
 end
 
+db.create_table :regions do
+	text :name
+	foreign_key_to :country
+end
+
 db.create_table :vinyards do
 	text :parcel_id, unique: true
 	text :name
-	text :region
-	foreign_key_to :country
+	foreign_key_to :region
 	foreign_key_to :winery
 end
 

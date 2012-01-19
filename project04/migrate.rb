@@ -9,11 +9,26 @@ old = db.wines_tmp
 # fill countries
 db.countries.insert name: old.country_names.uniq
 
+# fill regions
+regions = old.region_names.zip(old.country_names).map do |name, country|
+	name.nil? ? nil : {name: name, country_id: db.countries.id(:name, country)}
+end
+regions.compact! #remove nils
+regions.uniq! {|r| r[:name]} # remove duplicate names
+db.regions.insert regions
+
+
+
+
 # fill grapes
-db.grapes.insert name: old.grape_names.map{|names| names.split ","}.flatten.map(&:strip).uniq
+db.grapes.insert({
+	name: old.grape_names.map{|names| names.split ","}.flatten.map(&:strip).uniq
+})
 
 # fill wineries
 db.wineries.insert name: old.winery_names.uniq
+
+#fill vinyards
 
 
 

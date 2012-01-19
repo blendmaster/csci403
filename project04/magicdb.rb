@@ -60,19 +60,32 @@ class Table
 			end
 		end
 	end
+	
+	# returns first id of record with a field equal to value
+	def id field, value
+		# can't bind field name, oh well
+		@db.get_first_value "select id from #{@name} where #{field} = ?",  value
+	end
 
 	def insert record
+		return record.each {|r| insert r} if record.is_a? Array
 		fields = record.keys.join ', '
 		if record.values.any?{|v| v.is_a? Array}
 			record.values[0].length.times do |i| # assume they're all arrays of the same length
 				values = record.values.map{|v| "\"#{v[i]}\""}.join ', '
-				@db.execute "insert into #{@name} (#{fields}) values (#{values})"
+				insert_with fields, values 
 			end
 		else
 			# shameful copypasta from above, i know
 			values = record.values.map{|v| "\"#{v}\""}.join ', '
-			@db.execute "insert into #{@name} (#{fields}) values (#{values})"
+			insert_with fields,values
 		end
+	end
+
+	private
+
+	def insert_with fields,values
+		@db.execute "insert into #{@name} (#{fields}) values (#{values})"
 	end
 
 end
