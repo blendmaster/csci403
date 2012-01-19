@@ -53,3 +53,9 @@ db.wines.insert({
 	winery_id: old.winery_names.map{|name| db.wineries.id(:name, name)}
 })
 
+# seed grapes_wines
+old.select([:id, :grape_name]).map do |id,grapes|
+	grapes.split(",").map(&:strip).each do |grape|
+		db.grapes_wines.insert wine_id: id, grape_id: db.grapes.id(:name, grape)
+	end
+end
