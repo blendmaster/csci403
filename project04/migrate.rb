@@ -6,9 +6,16 @@ db.results_as_hash = true
 
 old = db.wines_tmp
 
-old.country_names.uniq.each do |name|
-	db.countries.insert name: name
-end
+# fill countries
+db.countries.insert name: old.country_names.uniq
+
+# fill grapes
+db.grapes.insert name: old.grape_names.map{|names| names.split ","}.flatten.map(&:strip).uniq
+
+# fill wineries
+db.wineries.insert name: old.winery_names.uniq
+
+
 
 
 =begin

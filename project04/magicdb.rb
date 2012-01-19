@@ -63,8 +63,16 @@ class Table
 
 	def insert record
 		fields = record.keys.join ', '
-		values = record.values.map{|v| "\"#{v}\""}.join ', '
-		@db.execute "insert into #{@name} (#{fields}) values (#{values})"
+		if record.values.any?{|v| v.is_a? Array}
+			record.values[0].length.times do |i| # assume they're all arrays of the same length
+				values = record.values.map{|v| "\"#{v[i]}\""}.join ', '
+				@db.execute "insert into #{@name} (#{fields}) values (#{values})"
+			end
+		else
+			# shameful copypasta from above, i know
+			values = record.values.map{|v| "\"#{v}\""}.join ', '
+			@db.execute "insert into #{@name} (#{fields}) values (#{values})"
+		end
 	end
 
 end

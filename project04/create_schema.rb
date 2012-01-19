@@ -15,12 +15,12 @@ db.create_table :vinyards do
 	text :name
 	text :region
 	foreign_key_to :country
+	foreign_key_to :winery
 end
 
 db.create_table :wineries do
 	text :name
 	int :tax_id, unique: true
-	foreign_key_to :vinyard
 end
 
 db.create_table :grapes do
