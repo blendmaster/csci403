@@ -61,6 +61,11 @@ class Table
 		end
 	end
 	
+	def select *fields
+		@db.results_as_hash = false # allows destructuring assignment
+		@db.execute "select #{fields.join ", "} from #{@name}"
+	end
+
 	# returns first id of record with a field equal to value
 	def id field, value
 		# can't bind field name, oh well
