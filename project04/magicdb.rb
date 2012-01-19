@@ -138,7 +138,7 @@ class TableDefinition
 			@columns.map do |name, type|
 				"\"#{name}\" #{type}"
 			end.join ", "
-		})".squeeze
+		})".squeeze " "
 	end
 
 

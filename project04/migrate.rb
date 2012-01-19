@@ -40,17 +40,16 @@ end
 grapes_vinyards.uniq!
 db.grapes_vinyards.insert grapes_vinyards
 
-
-
-=begin
-	db.wines.add 
-		id: row["id"]
-		name: row["name"]
-		vintage: row["vintage"]
-		price: row["price"]
-		comment: row["comment"]
-		drunk_date: row["drunk_date"]
-		purchase_date: row["purchase_date"]
-		rating: row["rating"]
-=end
+# seed wines
+db.wines.insert({
+	id: old.ids,
+	name: old.names,
+	vintage: old.vintages,
+	price: old.prices,
+	comment: old.comments,
+	drunk_date: old.drunk_dates,
+	purchase_date: old.purchase_dates,
+	rating: old.ratings,
+	winery_id: old.winery_names.map{|name| db.wineries.id(:name, name)}
+})
 
