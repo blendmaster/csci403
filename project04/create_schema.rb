@@ -38,7 +38,7 @@ db.create_table :wines do
 	numeric :price
 	text :comment
 	int :rating
-	date :datedrunk
+	date :drunk_date
 	date :purchase_date
 
 	foreign_key_to :winery

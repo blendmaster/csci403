@@ -23,7 +23,50 @@ class SQLite3::Database
 			execute "drop table if exists #{table}"
 		end
 	end
+
+	def table name
+		Table.new self, name.to_s
+	end
+
+	alias_method :original_initialize, :initialize
+	def initialize name
+		original_initialize name
+		# add from_{table name} methods
+		# using sqlite master table
+		execute "select name from sqlite_master where type='table'" do |row|
+			name = row[0]
+			(class <<self; self;end).class_eval do # dynamically add methods to this instance
+				define_method "from_#{name}" do 
+					table name	
+				end
+			end
+		end
+	end
+
 end
+
+class Table
+	attr_accessor :name, :columns, :rows
+
+	def initialize db, name
+		@name = name
+		@db = db
+
+		db.results_as_hash = true
+		@columns, *@rows = @db.execute2 "select * from #{@name}"
+
+		# add column accessors by name
+		@columns.each do |name|
+			(class <<self; self;end).class_eval do # dynamically add methods to this instance
+				define_method name.pluralize do
+					@rows.map{|row| row[name]}
+				end
+			end
+		end
+	end
+
+end
+
 
 # idea adapted from ActiveRecord's TableDefinition
 class TableDefinition
