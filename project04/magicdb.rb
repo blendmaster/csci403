@@ -24,20 +24,16 @@ class SQLite3::Database
 		end
 	end
 
-	def table name
-		Table.new self, name.to_s
-	end
-
 	alias_method :original_initialize, :initialize
-	def initialize name
-		original_initialize name
-		# add from_{table name} methods
+	def initialize database
+		original_initialize database
+		# add {table name} accessors
 		# using sqlite master table
 		execute "select name from sqlite_master where type='table'" do |row|
 			name = row[0]
 			(class <<self; self;end).class_eval do # dynamically add methods to this instance
-				define_method "from_#{name}" do 
-					table name	
+				define_method name do 
+					Table.new self, name
 				end
 			end
 		end
@@ -63,6 +59,12 @@ class Table
 				end
 			end
 		end
+	end
+
+	def insert record
+		fields = record.keys.join ', '
+		values = record.values.map{|v| "\"#{v}\""}.join ', '
+		@db.execute "insert into #{@name} (#{fields}) values (#{values})"
 	end
 
 end

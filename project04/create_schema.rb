@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 require './magicdb.rb'
 
-db = SQLite3::Database.new( "test.db" )
+db = SQLite3::Database.new( "wine.db" )
 
 # clear existing tables
 db.drop_tables :countries, :vinyards, :wineries, :grapes, :grapes_wines, :grapes_vinyards, :wines
