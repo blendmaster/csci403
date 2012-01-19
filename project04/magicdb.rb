@@ -60,10 +60,14 @@ class Table
 			end
 		end
 	end
-	
-	def select *fields
+
+	def select fields, options = {}
+		if options[:not_null]
+			options[:not_null] = [options[:not_null]] unless options[:not_null].is_a? Array
+			modifier = "where #{options[:not_null].map{|field|"#{field} is not null"}.join " and "}"
+		end
 		@db.results_as_hash = false # allows destructuring assignment
-		@db.execute "select #{fields.join ", "} from #{@name}"
+		@db.execute "select #{fields.join ", "} from #{@name} #{modifier}"
 	end
 
 	# returns first id of record with a field equal to value
