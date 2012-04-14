@@ -27,6 +27,7 @@ ActiveRecord::Base.establish_connection(
 class Habitat < ActiveRecord::Base
 
   has_many :animals
+	belongs_to :zoo
 
   def to_s
     name
@@ -44,6 +45,11 @@ end
 class Animal < ActiveRecord::Base
 	belongs_to :habitat
 	has_and_belongs_to_many :feeds
+	
+	has_and_belongs_to_many :users
+
+	validates :cuteness, numericality: { greater_than: 0, less_than: 100 }
+
 	def to_s
 		name
 	end
@@ -53,6 +59,15 @@ class Feed < ActiveRecord::Base
 	has_and_belongs_to_many :animals
 	def to_s
 		name
+	end
+end
+
+class User < ActiveRecord::Base
+	# thought about using has_many :favors, and has_many :users, through: favors
+	# but the table animals_users isn't named for a 'favors' model
+	has_and_belongs_to_many :animals
+	def to_s
+		username
 	end
 end
 
@@ -109,31 +124,45 @@ end
 
 # Displays all the feeds and the animals that eat each feed.
 def list_feeds
-  # TODO
+	Feed.includes( :animals ).each do |feed|
+		puts "#{feed}, eaten by #{feed.animals.join ', '}"
+	end
 end
 
 # Displays all the habitats, the zoo that owns each habitat,
 # and the animals that occupy each habitat.
 def list_habitats
-  # TODO
+	Habitat.includes(:zoo, :animals).each do |habitat|
+		puts "#{habitat} at the #{habitat.zoo} has:\n #{habitat.animals.map {|a| "\t#{a}"} .join '\n'}"
+	end
 end
 
 # Displays all the animals, the people that favor each animal,
 # and the habitat in which each lives.
 def list_animals
-  # TODO
+	Animal.includes(:users, :habitat).each do |animal|
+		puts "#{animal} lives in the #{animal.habitat}, and is favored by:"
+		puts( animal.users.map {|f| "\t#{f}" }.join("\n") )
+	end
 end
 
 # Displays all the users and their favorite animals.
 def list_users
-  # TODO
+	User.includes(:animals).each do |user|
+		puts "#{user} #{user.animals.length > 0 ? "likes the animals #{user.animals.join ', '}" : 'doesn\'t like any animals.'}"
+	end
 end
 
 # Captures attributes from the program user and saves a new
 # animal in the database.
 def create_animal
   name, description, cuteness, habitat = capture_animal_attributes
-  # TODO
+	animal = Animal.create(name: name, description: description, cuteness: cuteness, habitat: habitat)
+	if animal.valid? # huh, Animal.create didn't return a false value on validation
+		puts "Successfully added #{animal}!"
+	else
+		puts "Sorry, there was something wrong with that animal's information"
+	end
 end
 
 def execute_command(command)
