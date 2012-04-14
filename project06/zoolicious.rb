@@ -4,14 +4,19 @@ require 'rubygems'
 require 'active_record'
 require 'logger'
 
+def prompt p
+	print "#{p}: "
+	gets.chomp
+end
+
 #
 # Configuration
-# 
+#
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.establish_connection(
   :host => 'localhost',
   :username => 'root',
-  :password => '',
+	:password => prompt( "Enter the mysql database password" ),
   :adapter => 'mysql2',
   :database => 'zoolicious'
 )
@@ -29,6 +34,27 @@ class Habitat < ActiveRecord::Base
 
 end
 
+class Zoo < ActiveRecord::Base
+	has_many :habitats
+	def to_s
+		name
+	end
+end
+
+class Animal < ActiveRecord::Base
+	belongs_to :habitat
+	has_and_belongs_to_many :feeds
+	def to_s
+		name
+	end
+end
+
+class Feed < ActiveRecord::Base
+	has_and_belongs_to_many :animals
+	def to_s
+		name
+	end
+end
 
 #
 # Core functions.
@@ -73,7 +99,12 @@ end
 
 # Displays all the zoos and their habitats.
 def list_zoos
-  # TODO
+	Zoo.includes( :habitats ).each do |zoo|
+		puts "#{zoo}: "
+		zoo.habitats.each do |h|
+			puts "\tHabitat: #{h}"
+		end
+	end
 end
 
 # Displays all the feeds and the animals that eat each feed.
